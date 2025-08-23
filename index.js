@@ -38,7 +38,7 @@ async function run() {
         const collegeTransectionsSummaryCollection = client.db('Lakshmipur_Residential_College').collection('college_transections_summary');
         const noticePanelCollection = client.db('Lakshmipur_Residential_College').collection('notice_panel');
         const studentCornerCollection = client.db('Lakshmipur_Residential_College').collection('student_corner');
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------------------------------
         const staffBonusCollection = client.db('Lakshmipur_Residential_College').collection('staff_bonus');
         const selfTransectionsCollection = client.db('Lakshmipur_Residential_College').collection('self_transections');
         const selfTransectionsSummaryCollection = client.db('Lakshmipur_Residential_College').collection('self_transections_summary');
@@ -46,6 +46,7 @@ async function run() {
         const voucherSlCollection = client.db('Lakshmipur_Residential_College').collection('voucher_sl_no');
         const productsCollection = client.db('Lakshmipur_Residential_College').collection('products');
         const tokenCollection = client.db('Lakshmipur_Residential_College').collection('tokens');
+        const infoOptionsCollection = client.db('Lakshmipur_Residential_College').collection('info_options');
 
         app.get("/shop_code", async (req, res) => {
             const shopCode = await teachersCodeCollection.findOne({});
@@ -842,7 +843,7 @@ async function run() {
             const voucher = {
                 date: Data.date,
                 voucher_no: String(Data.voucher_no),
-                products: Data.products,
+                transections: Data.transections,
                 total: Data.total,
                 paid_amount: Data.paid_amount,
                 due_amount: Data.due_amount,
@@ -1136,7 +1137,7 @@ async function run() {
         });
         app.patch('/edit_voucher/:id', async (req, res) => {
             const { id } = req.params;
-            const { voucher_no, products, total, due_amount, status } = req.body;
+            const { voucher_no, transections, total, due_amount, status } = req.body;
 
             try {
                 const filter = { _id: new ObjectId(id), 'vouchers.voucher_no': voucher_no };
@@ -1145,7 +1146,7 @@ async function run() {
                     filter,
                     {
                         $set: {
-                            'vouchers.$.products': products,
+                            'vouchers.$.transections': transections,
                             'vouchers.$.due_amount': due_amount,
                             'vouchers.$.payment_status': status,
                             'vouchers.$.total': total
@@ -1205,6 +1206,36 @@ async function run() {
                 res.status(500).send({ message: '❌ Server error', error: err.message });
             }
         });
+        app.get('/info_options', async (req, res) => {
+            const result = await infoOptionsCollection.findOne({});
+            res.send(result);
+        })
+        app.post('/info_options', async (req, res) => {
+            const { name, new_option } = req.body;
+            const options = { upsert: true };
+            const existing = await infoOptionsCollection.findOne({});
+            if (name === 'class') {
+                await infoOptionsCollection.updateOne(
+                    { _id: existing._id },
+                    { $set: { class: new_option } },
+                    options
+                );
+            }
+            if (name === 'department') {
+                await infoOptionsCollection.updateOne(
+                    { _id: existing._id },
+                    { $set: { department: new_option } },
+                    options
+                );
+            }
+            if (name === 'transection') {
+                await infoOptionsCollection.updateOne(
+                    { _id: existing._id },
+                    { $set: { transection_category: new_option } },
+                    options
+                );
+            }
+        })
 
 
         await client.db("admin").command({ ping: 1 });
@@ -1222,5 +1253,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`bismillah enterprise is running on port: ${port}`)
+    console.log(`Lakshmipur Residential is running on port: ${port}`)
 })
