@@ -1161,7 +1161,7 @@ async function run() {
         });
         app.patch('/edit_client_data/:id', async (req, res) => {
             const { id } = req.params;
-            const { name, on_behalf, address, mobile_no } = req.body;
+            const { name, year, roll, department, address, mobile_no } = req.body;
 
             try {
                 const filter = { _id: new ObjectId(id) };
@@ -1171,7 +1171,9 @@ async function run() {
                     {
                         $set: {
                             name,
-                            on_behalf,
+                            year,
+                            roll,
+                            department,
                             mobile_no,
                             address
                         }
